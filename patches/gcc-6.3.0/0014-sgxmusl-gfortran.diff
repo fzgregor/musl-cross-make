@@ -1,0 +1,54 @@
+diff -ru gcc-6.3.0/libgfortran/Makefile.in gcc-6.3.0.gfortran/libgfortran/Makefile.in
+--- gcc-6.3.0/libgfortran/Makefile.in	2016-12-21 07:53:31.000000000 +0000
++++ gcc-6.3.0.gfortran/libgfortran/Makefile.in	2017-04-11 10:14:04.313734890 +0000
+@@ -442,9 +442,9 @@
+ # Use -ffunction-sections -fdata-sections if supported by the compiler
+ 
+ # Some targets require additional compiler options for IEEE compatibility.
+-AM_CFLAGS = @AM_CFLAGS@ -fcx-fortran-rules $(SECTION_FLAGS) \
++AM_CFLAGS = @AM_CFLAGS@ -fpic -fcx-fortran-rules $(SECTION_FLAGS) \
+ 	$(IEEE_FLAGS) $(am__append_1)
+-AM_FCFLAGS = @AM_FCFLAGS@ $(IEEE_FLAGS)
++AM_FCFLAGS = @AM_FCFLAGS@ $(IEEE_FLAGS) -fpic
+ AR = @AR@
+ AS = @AS@
+ AUTOCONF = @AUTOCONF@
+@@ -453,7 +453,7 @@
+ AWK = @AWK@
+ CC = @CC@
+ CCDEPMODE = @CCDEPMODE@
+-CFLAGS = @CFLAGS@
++CFLAGS = @CFLAGS@ -fpic
+ CPP = @CPP@
+ CPPFLAGS = @CPPFLAGS@
+ CYGPATH_W = @CYGPATH_W@
+@@ -467,7 +467,7 @@
+ EGREP = @EGREP@
+ EXEEXT = @EXEEXT@
+ FC = @FC@
+-FCFLAGS = @FCFLAGS@
++FCFLAGS = @FCFLAGS@ -fpic
+ FGREP = @FGREP@
+ FPU_HOST_HEADER = @FPU_HOST_HEADER@
+ GREP = @GREP@
+diff -ru gcc-6.3.0/libquadmath/Makefile.in gcc-6.3.0.gfortran/libquadmath/Makefile.in
+--- gcc-6.3.0/libquadmath/Makefile.in	2016-12-21 07:53:32.000000000 +0000
++++ gcc-6.3.0.gfortran/libquadmath/Makefile.in	2017-04-11 10:12:55.893501168 +0000
+@@ -177,14 +177,14 @@
+ depcomp = $(SHELL) $(top_srcdir)/../depcomp
+ am__depfiles_maybe = depfiles
+ am__mv = mv -f
+-COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
++COMPILE = $(CC) -fpic $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
+ 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
+ LTCOMPILE = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
+-	--mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
++	--mode=compile $(CC) -fpic $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
+ 	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
+ CCLD = $(CC)
+ LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
+-	--mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
++	--mode=link $(CCLD) -fpic $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
+ 	$(LDFLAGS) -o $@
+ SOURCES = $(libquadmath_la_SOURCES)
+ MULTISRCTOP = 
