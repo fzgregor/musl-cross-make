@@ -1,0 +1,3 @@
+[submodule "musl-repo"]
+	path = musl-repo
+	url = ../sgx-musl.git

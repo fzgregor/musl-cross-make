@@ -1,0 +1,67 @@
+image: ubuntu:16.04
+
+before_script:
+  - apt update && apt install -y 
+        build-essential
+        git
+        wget
+        ca-certificates
+        libtool
+        file
+        yasm
+        gfortran
+  #    openssh-client
+  # sgx-musl configuration file needed with the spsc system call interface
+  - printf "Q 1\ne 0 0 0\ns 1 0 0" > /etc/sgx-musl.conf
+  # Run ssh-agent (inside the build environment)
+  #- eval $(ssh-agent -s)
+  # Add the SSH key stored in SSH_PRIVATE_KEY variable to the agent store
+  #- ssh-add <(echo "$SSH_PRIVATE_KEY")
+
+  # For Docker builds disable host key checking. Be aware that by adding that
+  # you are suspectible to man-in-the-middle attacks.
+  # WARNING: Use this only with the Docker executor, if you use it with shell
+  # you will overwrite your user's SSH config.
+  #- mkdir -p ~/.ssh
+  #- '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
+
+variables:
+  GIT_SUBMODULE_STRATEGY: recursive
+
+build-cross-compiler:
+  stage: build
+  script:
+    - ./build.sh cross-compiler
+  artifacts:
+    paths:
+      - cross-compiler
+
+c-hello-world:
+  stage: test
+  tags:
+    - isgx
+  script:
+    - "printf \"#include <stdio.h>\\nint main() {\\nprintf(\\\"C: Hello World\\\");\\nreturn 32;\\n}\" > test.c"
+    - ./cross-compiler/x86_64-linux-musl/bin/x86_64-linux-musl-gcc ./test.c -o test
+    - out=`./test` || test $? -eq 32
+    - "test $out == \"C: Hello World\""
+
+c++-hello-world:
+  stage: test
+  tags:
+    - isgx
+  script:
+    - "printf \"#include <iostream>\\nint main() {\\nstd::cout << \\\"C++: Hello World\\\" << std::endl;\\nreturn 32;\\n}\" > test.cpp"
+    - ./cross-compiler/x86_64-linux-musl/bin/x86_64-linux-musl-g++ ./test.cpp -o test
+    - out=`./test` || test $? -eq 32
+    - "test $out == \"C++: Hello World\""
+
+fortran-hello-world:
+  stage: test
+  tags:
+    - isgx
+  script:
+    - "printf \"       print *,\\\"Fortran: Hello World\\\"\\n       call EXIT(32)\\       end\" > test.f"
+    - ./cross-compiler/x86_64-linux-musl/bin/gfortran ./test.f -o test
+    - out=`./test` || test $? -eq 32
+    - "test $out == \"Fortran: Hello World\""
